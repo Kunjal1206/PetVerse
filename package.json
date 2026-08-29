@@ -1,0 +1,14 @@
+{
+  "name": "petverse-root",
+  "version": "1.0.0",
+  "description": "PetVerse - AI-Assisted Pet Adoption & Pet Care Platform",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
