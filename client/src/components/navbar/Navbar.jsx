@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useMode } from '../../context/ModeContext';
 import NotificationDropdown from './NotificationDropdown';
 import Button from '../common/Button';
 import { 
@@ -17,15 +18,19 @@ import {
   Home as HomeIcon,
   PawPrint,
   Calendar,
-  LayoutDashboard
+  LayoutDashboard,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdopter, isShelter, isAdmin, logout } = useAuth();
+  const { mode, switchToAdopt, switchToHavePet, isAdopt, isHavePet } = useMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -33,21 +38,43 @@ const Navbar = () => {
     navigate('/');
   };
 
-  const navLinks = [
-    { name: 'Adopt', path: '/adopt', icon: Heart },
-    { name: 'Pet Care', path: '/services', icon: Sparkles },
+  const handleModeChange = (targetMode) => {
+    if (targetMode === 'adopt') {
+      switchToAdopt();
+    } else {
+      switchToHavePet();
+    }
+    // If on home, stay on home; otherwise user can choose to stay or explore
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Curated, uncluttered links based on current user persona
+  const adoptLinks = [
+    { name: 'Browse Pets', path: '/adopt', icon: Heart },
     { name: 'AI Pet Match', path: '/ai-match', icon: Compass, badge: 'AI' },
     { name: 'Lost & Found', path: '/lost-found', icon: Search },
-    { name: 'Nearby Services', path: '/nearby', icon: MapPin },
+    { name: 'How It Works', path: '/faq', icon: ShieldCheck },
   ];
 
+  const havePetLinks = [
+    { name: 'Pet Boarding', path: '/services/boarding', icon: HomeIcon },
+    { name: 'Care Services', path: '/services', icon: Sparkles },
+    { name: 'Nearby Vets & Parks', path: '/nearby', icon: MapPin },
+    { name: 'Health Reminders', path: isAuthenticated ? '/dashboard/care' : '/login', icon: Clock },
+    { name: 'Lost & Found', path: '/lost-found', icon: Search },
+  ];
+
+  const activeLinks = isAdopt ? adoptLinks : havePetLinks;
+
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-cream-300">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-cream-300 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-20 gap-4">
           
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          {/* 1. Logo */}
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-10 h-10 rounded-2xl bg-brand-500 flex items-center justify-center text-white shadow-sm group-hover:bg-brand-600 transition-colors">
               <PawPrint className="w-5 h-5 fill-white/20" />
             </div>
@@ -55,32 +82,63 @@ const Navbar = () => {
               <span className="font-display font-bold text-2xl tracking-tight text-brand-900 leading-none">
                 Pet<span className="text-brand-accent">Verse</span>
               </span>
-              <span className="text-[10px] font-medium text-charcoal-400 tracking-wider uppercase">
-                Care & Adoption
+              <span className="text-[10px] font-semibold text-charcoal-400 tracking-wider uppercase">
+                {isAdopt ? 'Adoption Portal' : 'Pet Care Portal'}
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
+          {/* 2. Prominent Mode Switcher Pill (Evaluator & User toggle) */}
+          <div className="hidden md:flex items-center p-1 rounded-2xl bg-cream-200 border border-cream-300 shadow-inner">
+            <button
+              type="button"
+              onClick={() => handleModeChange('adopt')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                isAdopt
+                  ? 'bg-brand-500 text-white shadow-sm'
+                  : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isAdopt ? 'text-white' : 'text-rose-500'}`} />
+              <span>Want to Adopt</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleModeChange('have_pet')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                isHavePet
+                  ? 'bg-teal-600 text-white shadow-sm'
+                  : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
+              }`}
+            >
+              <PawPrint className={`w-3.5 h-3.5 ${isHavePet ? 'text-white' : 'text-teal-600'}`} />
+              <span>Already Have a Pet</span>
+            </button>
+          </div>
+
+          {/* 3. Contextual Nav Links (De-cluttered) */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {activeLinks.map((link) => {
               const Icon = link.icon;
               return (
                 <NavLink
                   key={link.name}
                   to={link.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                       isActive
-                        ? 'bg-brand-50 text-brand-700 font-semibold'
+                        ? isAdopt
+                          ? 'bg-brand-50 text-brand-700'
+                          : 'bg-teal-50 text-teal-800'
                         : 'text-charcoal-700 hover:text-brand-800 hover:bg-cream-100'
                     }`
                   }
                 >
-                  <Icon className="w-4 h-4 text-brand-500" />
+                  <Icon className="w-3.5 h-3.5 opacity-80" />
                   <span>{link.name}</span>
                   {link.badge && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-brand-accent text-white rounded-md">
+                    <span className="px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider bg-brand-accent text-white rounded-md">
                       {link.badge}
                     </span>
                   )}
@@ -89,25 +147,22 @@ const Navbar = () => {
             })}
           </nav>
 
-          {/* Right Action Buttons / User Menu */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* 4. Right Actions / User Menu */}
+          <div className="hidden md:flex items-center gap-2.5">
             {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                {/* Notification Dropdown */}
+              <div className="flex items-center gap-2.5">
                 <NotificationDropdown />
 
-                {/* Role Specific Shortcuts */}
                 {isAdopter && (
                   <Link
                     to="/dashboard/my-pets"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-charcoal-700 hover:text-brand-600 px-3 py-2 rounded-xl hover:bg-cream-100 transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-bold text-charcoal-700 hover:text-brand-600 px-3 py-2 rounded-xl hover:bg-cream-100 transition-colors"
                   >
-                    <PawPrint className="w-3.5 h-3.5" />
+                    <PawPrint className="w-3.5 h-3.5 text-brand-500" />
                     <span>My Pets</span>
                   </Link>
                 )}
 
-                {/* Dashboard Button */}
                 <Link
                   to={
                     isAdmin
@@ -165,7 +220,7 @@ const Navbar = () => {
                             className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-cream-100"
                           >
                             <LayoutDashboard className="w-4 h-4 text-charcoal-400" />
-                            <span>Overview Dashboard</span>
+                            <span>Dashboard</span>
                           </Link>
 
                           {isAdopter && (
@@ -176,7 +231,15 @@ const Navbar = () => {
                                 className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-cream-100"
                               >
                                 <PawPrint className="w-4 h-4 text-charcoal-400" />
-                                <span>My Pets & Care</span>
+                                <span>My Pets & Records</span>
+                              </Link>
+                              <Link
+                                to="/dashboard/care"
+                                onClick={() => setUserDropdownOpen(false)}
+                                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-cream-100"
+                              >
+                                <Clock className="w-4 h-4 text-charcoal-400" />
+                                <span>Care Reminders</span>
                               </Link>
                               <Link
                                 to="/dashboard/applications"
@@ -184,7 +247,7 @@ const Navbar = () => {
                                 className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-cream-100"
                               >
                                 <Calendar className="w-4 h-4 text-charcoal-400" />
-                                <span>Adoption Applications</span>
+                                <span>Applications</span>
                               </Link>
                             </>
                           )}
@@ -205,7 +268,7 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
                     Login
@@ -213,14 +276,14 @@ const Navbar = () => {
                 </Link>
                 <Link to="/register">
                   <Button variant="primary" size="sm">
-                    Get Started
+                    Join PetVerse
                   </Button>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile hamburger menu toggle */}
           <div className="flex items-center gap-2 lg:hidden">
             {isAuthenticated && <NotificationDropdown />}
             <button
@@ -234,17 +297,47 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-cream-300 bg-white px-4 pt-2 pb-6 space-y-3"
+            className="lg:hidden border-b border-cream-300 bg-white px-4 pt-3 pb-6 space-y-4"
           >
+            {/* Mobile Mode Switcher */}
+            <div className="p-1 rounded-2xl bg-cream-200 grid grid-cols-2 gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  handleModeChange('adopt');
+                  setMobileMenuOpen(false);
+                }}
+                className={`py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                  isAdopt ? 'bg-brand-500 text-white shadow-xs' : 'text-charcoal-700'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5" />
+                <span>Want to Adopt</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleModeChange('have_pet');
+                  setMobileMenuOpen(false);
+                }}
+                className={`py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                  isHavePet ? 'bg-teal-600 text-white shadow-xs' : 'text-charcoal-700'
+                }`}
+              >
+                <PawPrint className="w-3.5 h-3.5" />
+                <span>Have a Pet</span>
+              </button>
+            </div>
+
             <div className="space-y-1">
-              {navLinks.map((link) => {
+              {activeLinks.map((link) => {
                 const Icon = link.icon;
                 return (
                   <NavLink
