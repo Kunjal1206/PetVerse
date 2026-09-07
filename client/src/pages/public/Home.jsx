@@ -1061,42 +1061,118 @@ const Home = () => {
           transition={{ duration: 0.3 }}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12"
         >
-          {/* Header Banner */}
-          <div className="rounded-3xl bg-gradient-to-r from-purple-700 via-purple-700 to-indigo-800 text-white p-8 sm:p-12 shadow-2xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 text-purple-100 text-xs font-bold">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-              <span>Option 3: Shelter, Rescuer & Service Provider Hub</span>
+          {/* Shelter & Provider Hero with Matching Visual Splendor */}
+          <section className="relative overflow-hidden pt-8 pb-16 bg-purple-50/50 border-b border-cream-300">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+              
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[480px]">
+                {/* Left Content Area */}
+                <div className="lg:col-span-6 space-y-6 text-center lg:text-left z-10">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-bold shadow-xs">
+                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
+                    <span>Option 3: Shelter, Rescuer & Service Provider Hub</span>
+                  </div>
+
+                  <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-charcoal-900 tracking-tight leading-[1.12]">
+                    Empowering Rescues,{' '}
+                    <span className="text-purple-800 underline decoration-purple-400 decoration-wavy decoration-4">
+                      Caregivers & Clinics
+                    </span>{' '}
+                    Across India.
+                  </h1>
+
+                  <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
+                    List rescue pets for adoption, manage incoming applications with objective applicant scoring, and publish cage-free homestay boarding or veterinary healthcare on our verified network.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleFastShelterLogin}
+                      className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-charcoal-950 font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      <span>1-Click Demo Shelter Login</span>
+                    </button>
+
+                    <Link to="/login" className="w-full sm:w-auto">
+                      <Button size="lg" variant="outline" icon={ArrowRight} className="w-full sm:w-auto font-bold border-purple-700 text-purple-900 hover:bg-purple-100/60">
+                        Manual Provider Sign In
+                      </Button>
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-3 text-xs text-charcoal-500 font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <span>100% Shelter-Verified Network</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+                      <span>Zero Listing Fees for NGOs</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-purple-600" />
+                      <span>Automated Screening Engine</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Side: Organic Curved Shape & Rescuer/Vet Image with Floating Badges */}
+                <div className="lg:col-span-6 relative flex items-center justify-center py-6">
+                  {/* Organic Curved Backdrop Shape (Purple/Indigo Gradient) */}
+                  <div 
+                    className="absolute w-[340px] h-[340px] sm:w-[440px] sm:h-[440px] bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 shadow-2xl"
+                    style={{ borderRadius: '52% 48% 60% 40% / 48% 52% 48% 52%' }}
+                  />
+
+                  {/* Central Companion Pet / Caregiver Image */}
+                  <div className="relative z-10 w-[280px] h-[340px] sm:w-[360px] sm:h-[420px] flex items-end justify-center">
+                    <img
+                      src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=80&w=650"
+                      alt="Dedicated pet caregiver and rescue companion"
+                      className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 1 (Top Right - Rescued puppy avatar) */}
+                  <div className="absolute top-4 right-4 sm:right-10 z-20 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-purple-400 p-1">
+                    <img
+                      src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&q=80&w=150"
+                      alt="Shelter rescue pup"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 2 (Middle Right - Applications & Screening Badge) */}
+                  <div className="absolute top-1/2 -right-2 sm:right-2 -translate-y-1/2 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-blue-500 p-1 flex items-center justify-center text-white">
+                    <div className="w-full h-full rounded-full bg-blue-600 flex flex-col items-center justify-center text-white">
+                      <ClipboardList className="w-5 h-5" />
+                      <span className="text-[8px] font-extrabold uppercase tracking-tighter mt-0.5">Screening</span>
+                    </div>
+                  </div>
+
+                  {/* Floating Circular Badge 3 (Left Bottom - Happy Indie Dog) */}
+                  <div className="absolute bottom-6 left-0 sm:left-4 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-amber-500 p-1">
+                    <img
+                      src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=150"
+                      alt="Indie rescue companion"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 4 (Bottom Right - Verified Shelter/NGO Badge) */}
+                  <div className="absolute bottom-2 right-6 sm:right-16 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-emerald-600 p-1 flex items-center justify-center text-white">
+                    <div className="w-full h-full rounded-full bg-emerald-700 flex flex-col items-center justify-center text-white">
+                      <ShieldCheck className="w-5 h-5" />
+                      <span className="text-[8px] font-extrabold uppercase tracking-tighter mt-0.5">Verified NGO</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
-
-            <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white leading-tight">
-              Empowering Rescues, Caregivers & Boarding Hosts.
-            </h1>
-
-            <p className="text-sm sm:text-base text-purple-100 max-w-2xl leading-relaxed">
-              List rescue pets for adoption, manage incoming applications with objective applicant scoring, and publish cage-free homestay boarding or veterinary care.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                type="button"
-                onClick={handleFastShelterLogin}
-                className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-charcoal-950 font-extrabold text-sm shadow-md flex items-center gap-2 cursor-pointer transition-all"
-              >
-                <UserCheck className="w-4 h-4" />
-                <span>1-Click Demo Shelter Login</span>
-              </button>
-
-              <Link to="/login">
-                <button
-                  type="button"
-                  className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/25 flex items-center gap-2 transition-all cursor-pointer"
-                >
-                  <span>Manual Provider Sign In</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </Link>
-            </div>
-          </div>
+          </section>
 
           {/* Operational Tools Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
