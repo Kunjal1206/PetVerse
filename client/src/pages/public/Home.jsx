@@ -731,22 +731,111 @@ const Home = () => {
           transition={{ duration: 0.3 }}
           className="space-y-16"
         >
-          {/* Pet Parent Care Hero */}
-          <section className="relative overflow-hidden pt-8 pb-12 bg-teal-50/50 border-b border-cream-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-              <div className="max-w-3xl space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-100 border border-teal-200 text-teal-900 text-xs font-bold shadow-xs">
-                  <PawPrint className="w-3.5 h-3.5 text-teal-700" />
-                  <span>Option 2: Pet Parent Care & Wellness Hub</span>
+          {/* Pet Parent Care Hero with Matching Visual Splendor */}
+          <section className="relative overflow-hidden pt-8 pb-16 bg-teal-50/50 border-b border-cream-300">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+              
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[480px]">
+                {/* Left Content Area */}
+                <div className="lg:col-span-6 space-y-6 text-center lg:text-left z-10">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-100 border border-teal-200 text-teal-900 text-xs font-bold shadow-xs">
+                    <PawPrint className="w-3.5 h-3.5 text-teal-700" />
+                    <span>Option 2: Pet Parent Care & Wellness Hub</span>
+                  </div>
+
+                  <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-charcoal-900 tracking-tight leading-[1.12]">
+                    Complete Care &{' '}
+                    <span className="text-teal-800 underline decoration-teal-400 decoration-wavy decoration-4">
+                      Trusted Services
+                    </span>{' '}
+                    for Your Loved Companion.
+                  </h1>
+
+                  <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
+                    Everything you need to keep your companion safe, healthy, and happy: verified cage-free homestay boarding, 24/7 emergency trauma clinics, preventative vaccination schedules, and trusted groomers & walkers.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+                    <Link to="/services/boarding">
+                      <Button size="lg" variant="primary" icon={HomeIcon} className="w-full sm:w-auto font-extrabold bg-teal-600 hover:bg-teal-700 text-white shadow-md">
+                        Book Homestay Boarding
+                      </Button>
+                    </Link>
+                    <Link to="/nearby">
+                      <Button size="lg" variant="outline" icon={Stethoscope} className="w-full sm:w-auto font-bold border-teal-700 text-teal-900 hover:bg-teal-100/60">
+                        Find 24/7 Emergency Vets
+                      </Button>
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-3 text-xs text-charcoal-500 font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <span>100% Cage-Free Verified Hosts</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+                      <span>4.9/5 Caregiver Satisfaction</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-teal-600" />
+                      <span>24/7 Emergency Clinic Map</span>
+                    </span>
+                  </div>
                 </div>
 
-                <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-charcoal-900 tracking-tight leading-tight">
-                  Comprehensive Healthcare, Homestay Boarding & Daily Wellness.
-                </h1>
+                {/* Right Side: Organic Curved Shape & Happy Pampered Dog with Floating Badges */}
+                <div className="lg:col-span-6 relative flex items-center justify-center py-6">
+                  {/* Organic Curved Backdrop Shape (Teal/Emerald Gradient) */}
+                  <div 
+                    className="absolute w-[340px] h-[340px] sm:w-[440px] sm:h-[440px] bg-gradient-to-br from-teal-400 via-teal-500 to-emerald-500 shadow-2xl"
+                    style={{ borderRadius: '48% 52% 55% 45% / 52% 48% 52% 48%' }}
+                  />
 
-                <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed font-medium">
-                  Verified cage-free homestays when you travel, 24/7 emergency trauma clinics, preventative vaccination schedules, and trusted groomers & walkers.
-                </p>
+                  {/* Central Companion Dog Image */}
+                  <div className="relative z-10 w-[280px] h-[340px] sm:w-[360px] sm:h-[420px] flex items-end justify-center">
+                    <img
+                      src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=650"
+                      alt="Pampered healthy companion pet"
+                      className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 1 (Top Right - Cute cat spa avatar) */}
+                  <div className="absolute top-4 right-4 sm:right-10 z-20 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-teal-400 p-1">
+                    <img
+                      src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=150"
+                      alt="Groomed pet"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 2 (Middle Right - 24/7 Vet Icon Badge) */}
+                  <div className="absolute top-1/2 -right-2 sm:right-2 -translate-y-1/2 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-rose-500 p-1 flex items-center justify-center text-white">
+                    <div className="w-full h-full rounded-full bg-rose-600 flex flex-col items-center justify-center text-white">
+                      <Stethoscope className="w-5 h-5" />
+                      <span className="text-[8px] font-extrabold uppercase tracking-tighter mt-0.5">24/7 Vet</span>
+                    </div>
+                  </div>
+
+                  {/* Floating Circular Badge 3 (Left Bottom - Verified Homestay Host Dog) */}
+                  <div className="absolute bottom-6 left-0 sm:left-4 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-amber-500 p-1">
+                    <img
+                      src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&q=80&w=150"
+                      alt="Homestay boarding companion"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+
+                  {/* Floating Circular Badge 4 (Bottom Right - Vaccine & Wellness Badge) */}
+                  <div className="absolute bottom-2 right-6 sm:right-16 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-xl overflow-hidden bg-teal-600 p-1 flex items-center justify-center text-white">
+                    <div className="w-full h-full rounded-full bg-teal-700 flex flex-col items-center justify-center text-white">
+                      <ShieldCheck className="w-5 h-5" />
+                      <span className="text-[8px] font-extrabold uppercase tracking-tighter mt-0.5">Vaccines</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               {/* 4 Horizontal Floating Service Cards (With ALWAYS-VISIBLE ACTION BUTTONS) */}
