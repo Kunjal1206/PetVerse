@@ -26,7 +26,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdopter, isShelter, isAdmin, logout } = useAuth();
-  const { mode, switchToAdopt, switchToHavePet, isAdopt, isHavePet } = useMode();
+  const { 
+    mode, 
+    setMode,
+    resetMode, 
+    switchToAdopt, 
+    switchToHavePet, 
+    switchToShelter, 
+    isAdopt, 
+    isHavePet, 
+    isShelter: isShelterMode, 
+    isUnselected 
+  } = useMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -41,13 +52,20 @@ const Navbar = () => {
   const handleModeChange = (targetMode) => {
     if (targetMode === 'adopt') {
       switchToAdopt();
-    } else {
+    } else if (targetMode === 'have_pet') {
       switchToHavePet();
+    } else if (targetMode === 'shelter') {
+      switchToShelter();
     }
-    // If on home, stay on home; otherwise user can choose to stay or explore
     if (location.pathname === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleResetToGateway = () => {
+    resetMode();
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Curated, uncluttered links based on current user persona
@@ -66,7 +84,14 @@ const Navbar = () => {
     { name: 'Lost & Found', path: '/lost-found', icon: Search },
   ];
 
-  const activeLinks = isAdopt ? adoptLinks : havePetLinks;
+  const shelterLinks = [
+    { name: 'Shelter Hub', path: isAuthenticated ? '/dashboard/shelter' : '/login', icon: LayoutDashboard },
+    { name: 'Applications', path: isAuthenticated ? '/dashboard/shelter' : '/login', icon: Heart },
+    { name: 'Care Services', path: '/services', icon: Sparkles },
+    { name: 'Lost & Found', path: '/lost-found', icon: Search },
+  ];
+
+  const activeLinks = isAdopt ? adoptLinks : isHavePet ? havePetLinks : isShelterMode ? shelterLinks : [];
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-cream-300 shadow-xs">
@@ -74,7 +99,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20 gap-4">
           
           {/* 1. Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+          <Link to="/" onClick={handleResetToGateway} className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-10 h-10 rounded-2xl bg-brand-500 flex items-center justify-center text-white shadow-sm group-hover:bg-brand-600 transition-colors">
               <PawPrint className="w-5 h-5 fill-white/20" />
             </div>
@@ -83,38 +108,67 @@ const Navbar = () => {
                 Pet<span className="text-brand-accent">Verse</span>
               </span>
               <span className="text-[10px] font-semibold text-charcoal-400 tracking-wider uppercase">
-                {isAdopt ? 'Adoption Portal' : 'Pet Care Portal'}
+                {isAdopt ? 'Adoption Portal' : isHavePet ? 'Pet Care Portal' : isShelterMode ? 'Shelter & Care Hub' : 'Select Option'}
               </span>
             </div>
           </Link>
 
-          {/* 2. Prominent Mode Switcher Pill (Evaluator & User toggle) */}
-          <div className="hidden md:flex items-center p-1 rounded-2xl bg-cream-200 border border-cream-300 shadow-inner">
-            <button
-              type="button"
-              onClick={() => handleModeChange('adopt')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isAdopt
-                  ? 'bg-brand-500 text-white shadow-sm'
-                  : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
-              }`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${isAdopt ? 'text-white' : 'text-rose-500'}`} />
-              <span>Want to Adopt</span>
-            </button>
+          {/* 2. Prominent Mode Switcher Pill (Evaluator & User toggle between options) */}
+          <div className="hidden md:flex items-center gap-1.5">
+            <div className="flex items-center p-1 rounded-2xl bg-cream-200 border border-cream-300 shadow-inner">
+              <button
+                type="button"
+                onClick={() => handleModeChange('adopt')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isAdopt
+                    ? 'bg-amber-400 text-charcoal-900 shadow-sm'
+                    : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
+                }`}
+                title="Option 1: I Want to Adopt"
+              >
+                <Heart className={`w-3.5 h-3.5 ${isAdopt ? 'text-charcoal-900 fill-charcoal-900/20' : 'text-rose-500'}`} />
+                <span>Want to Adopt</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleModeChange('have_pet')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                isHavePet
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
-              }`}
-            >
-              <PawPrint className={`w-3.5 h-3.5 ${isHavePet ? 'text-white' : 'text-teal-600'}`} />
-              <span>Already Have a Pet</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleModeChange('have_pet')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isHavePet
+                    ? 'bg-teal-600 text-white shadow-sm'
+                    : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
+                }`}
+                title="Option 2: I Already Have a Pet"
+              >
+                <PawPrint className={`w-3.5 h-3.5 ${isHavePet ? 'text-white' : 'text-teal-600'}`} />
+                <span>Have a Pet</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleModeChange('shelter')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isShelterMode
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'text-charcoal-600 hover:text-brand-900 hover:bg-cream-100'
+                }`}
+                title="Option 3: Shelter / Provider"
+              >
+                <ShieldCheck className={`w-3.5 h-3.5 ${isShelterMode ? 'text-white' : 'text-purple-600'}`} />
+                <span>Shelter/Provider</span>
+              </button>
+            </div>
+
+            {mode && (
+              <button
+                type="button"
+                onClick={handleResetToGateway}
+                className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-charcoal-600 hover:text-brand-900 bg-white border border-cream-300 hover:bg-cream-100 transition-all shadow-xs flex items-center gap-1"
+                title="Go back to the opening options screen"
+              >
+                <span>Switch Option ⮌</span>
+              </button>
+            )}
           </div>
 
           {/* 3. Contextual Nav Links (De-cluttered) */}
@@ -307,19 +361,19 @@ const Navbar = () => {
             className="lg:hidden border-b border-cream-300 bg-white px-4 pt-3 pb-6 space-y-4"
           >
             {/* Mobile Mode Switcher */}
-            <div className="p-1 rounded-2xl bg-cream-200 grid grid-cols-2 gap-1">
+            <div className="p-1 rounded-2xl bg-cream-200 grid grid-cols-3 gap-1">
               <button
                 type="button"
                 onClick={() => {
                   handleModeChange('adopt');
                   setMobileMenuOpen(false);
                 }}
-                className={`py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
-                  isAdopt ? 'bg-brand-500 text-white shadow-xs' : 'text-charcoal-700'
+                className={`py-2 text-[11px] font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
+                  isAdopt ? 'bg-amber-400 text-charcoal-900 shadow-xs' : 'text-charcoal-700'
                 }`}
               >
                 <Heart className="w-3.5 h-3.5" />
-                <span>Want to Adopt</span>
+                <span>Want Adopt</span>
               </button>
               <button
                 type="button"
@@ -327,14 +381,40 @@ const Navbar = () => {
                   handleModeChange('have_pet');
                   setMobileMenuOpen(false);
                 }}
-                className={`py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                className={`py-2 text-[11px] font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
                   isHavePet ? 'bg-teal-600 text-white shadow-xs' : 'text-charcoal-700'
                 }`}
               >
                 <PawPrint className="w-3.5 h-3.5" />
-                <span>Have a Pet</span>
+                <span>Have Pet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleModeChange('shelter');
+                  setMobileMenuOpen(false);
+                }}
+                className={`py-2 text-[11px] font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
+                  isShelterMode ? 'bg-purple-600 text-white shadow-xs' : 'text-charcoal-700'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Shelter/Host</span>
               </button>
             </div>
+
+            {mode && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleResetToGateway();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-1.5 text-xs font-bold text-center text-charcoal-600 bg-cream-100 hover:bg-cream-200 rounded-xl border border-cream-300"
+              >
+                ⮌ Switch Option / Back to Opening Screen
+              </button>
+            )}
 
             <div className="space-y-1">
               {activeLinks.map((link) => {
