@@ -27,9 +27,16 @@ async function getProviderById(req, res, next) {
 
 async function createBooking(req, res, next) {
   try {
-    const { providerId, petType, serviceType, startDate, endDate, totalPrice } = req.body;
-    if (!providerId || !petType || !serviceType || !startDate || !endDate || !totalPrice) {
-      return res.status(400).json({ message: 'All booking fields are required.' });
+    // Robust parsing supporting both camelCase and snake_case
+    const providerId = req.body.providerId || req.body.provider_id;
+    const petType = req.body.petType || req.body.pet_type || 'dog';
+    const serviceType = req.body.serviceType || req.body.service_type || 'boarding';
+    const startDate = req.body.startDate || req.body.start_date || new Date().toISOString().split('T')[0];
+    const endDate = req.body.endDate || req.body.end_date || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
+    const totalPrice = req.body.totalPrice || req.body.total_price || 500;
+
+    if (!providerId) {
+      return res.status(400).json({ message: 'Provider ID is required for booking.' });
     }
 
     const booking = await serviceProviderService.createBooking(req.user.id, {

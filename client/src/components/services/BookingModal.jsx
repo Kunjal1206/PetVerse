@@ -4,7 +4,7 @@ import Button from '../common/Button';
 import Input from '../common/Input';
 import Select from '../common/Select';
 import { createBooking } from '../../services/providerService';
-import { Calendar, CheckCircle2, ShieldCheck, CreditCard } from 'lucide-react';
+import { Calendar, CheckCircle2, ShieldCheck, CreditCard, Sparkles, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const BookingModal = ({
@@ -13,7 +13,7 @@ const BookingModal = ({
   onClose,
   onSuccess
 }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, quickLogin } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState(null);
@@ -35,12 +35,25 @@ const BookingModal = ({
   };
 
   const days = calculateDays();
-  const totalPrice = days * (Number(provider?.price) || 500);
+  const totalPrice = days * (Number(provider?.price) || 700);
+
+  const handleQuickLoginAndBook = async () => {
+    try {
+      setSubmitting(true);
+      setError(null);
+      await quickLogin('adopter');
+    } catch (err) {
+      console.error(err);
+      setError('Auto-login failed. Please sign in via the Login page.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      setError('Please log in to request a service booking.');
+      setError('auth_required');
       return;
     }
 
@@ -48,18 +61,26 @@ const BookingModal = ({
       setSubmitting(true);
       setError(null);
       await createBooking({
+        providerId: provider.id,
         provider_id: provider.id,
+        petType: bookingForm.pet_type,
         pet_type: bookingForm.pet_type,
+        serviceType: provider.type || 'boarding',
         service_type: provider.type || 'boarding',
+        startDate: bookingForm.start_date,
         start_date: bookingForm.start_date,
+        endDate: bookingForm.end_date,
         end_date: bookingForm.end_date,
-        total_price: totalPrice
+        totalPrice: totalPrice,
+        total_price: totalPrice,
+        petName: bookingForm.pet_name,
+        specialInstructions: bookingForm.special_instructions
       });
       setConfirmed(true);
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error('Booking failed:', err);
-      setError(err.response?.data?.message || 'Failed to submit booking request. Please try again.');
+      setError(err.response?.data?.message || 'Failed to submit booking request. Please check inputs.');
     } finally {
       setSubmitting(false);
     }
@@ -100,11 +121,29 @@ const BookingModal = ({
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {error === 'auth_required' ? (
+            <div className="p-4 bg-brand-50 border border-brand-200 rounded-2xl space-y-2">
+              <p className="text-xs font-bold text-brand-900">
+                Please sign in to complete your homestay booking:
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  loading={submitting}
+                  onClick={handleQuickLoginAndBook}
+                  icon={Sparkles}
+                >
+                  1-Click Fast Login as Adopter
+                </Button>
+              </div>
+            </div>
+          ) : error ? (
             <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
               {error}
             </div>
-          )}
+          ) : null}
 
           <div className="grid grid-cols-2 gap-3">
             <Select
