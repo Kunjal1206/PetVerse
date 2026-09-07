@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { PawPrint, Lock, Mail, Sparkles, ShieldCheck, Building2, User } from 'lucide-react';
+import { PawPrint, Lock, Mail, Sparkles, ShieldCheck, Building2, User, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,6 +14,19 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const fillCredentials = (role) => {
+    if (role === 'adopter') {
+      setEmail('rahul.adopter@petverse.com');
+      setPassword('password123');
+    } else if (role === 'shelter') {
+      setEmail('delhi.shelter@petverse.com');
+      setPassword('password123');
+    } else if (role === 'admin') {
+      setEmail('admin@petverse.com');
+      setPassword('password123');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +45,12 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+      const msg = err.response?.data?.message || err.message;
+      if (!err.response) {
+        setError('Cannot reach backend on port 5000. Try the 1-Click Fast Evaluation Logins below which work with offline support!');
+      } else {
+        setError(msg || 'Invalid email or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,7 +70,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Quick login error:', err);
-      setError('Demo login failed. Please try standard login.');
+      setError('Demo login failed. Please try filling credentials manually.');
     } finally {
       setLoading(false);
     }
@@ -80,38 +98,43 @@ const Login = () => {
           </p>
         </div>
 
-        {/* 1-Click Fast Demo Login Buttons for Evaluators */}
-        <div className="p-4 rounded-3xl bg-brand-50/70 border border-brand-200/80 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-brand-800">
-            <Sparkles className="w-3.5 h-3.5 text-brand-accent animate-pulse" />
-            <span>1-Click Fast Evaluation Logins:</span>
+        {/* 1-Click Fast Demo Login Buttons */}
+        <div className="p-4 rounded-3xl bg-brand-50/80 border border-brand-200 space-y-2.5 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-brand-900">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-brand-accent animate-pulse" />
+              <span>1-Click Instant Evaluation Login:</span>
+            </div>
+            <span className="text-[10px] font-semibold text-brand-700 bg-brand-100 px-2 py-0.5 rounded">
+              No Password Needed
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => handleQuickLogin('adopter')}
-              className="px-2.5 py-2 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-semibold text-charcoal-800 flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+              className="px-2.5 py-2.5 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-bold text-charcoal-800 flex flex-col items-center justify-center gap-1 shadow-xs hover:shadow-md transition-all group"
             >
-              <User className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+              <User className="w-4 h-4 text-brand-600 group-hover:scale-110 transition-transform" />
               <span>Adopter</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin('shelter')}
-              className="px-2.5 py-2 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-semibold text-charcoal-800 flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+              className="px-2.5 py-2.5 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-bold text-charcoal-800 flex flex-col items-center justify-center gap-1 shadow-xs hover:shadow-md transition-all group"
             >
-              <Building2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+              <Building2 className="w-4 h-4 text-teal-600 group-hover:scale-110 transition-transform" />
               <span>Shelter</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin('admin')}
-              className="px-2.5 py-2 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-semibold text-charcoal-800 flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+              className="px-2.5 py-2.5 rounded-xl bg-white border border-brand-200 hover:border-brand-500 text-xs font-bold text-charcoal-800 flex flex-col items-center justify-center gap-1 shadow-xs hover:shadow-md transition-all group"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-rose-600 group-hover:scale-110 transition-transform" />
               <span>Admin</span>
             </button>
           </div>
@@ -120,10 +143,40 @@ const Login = () => {
         {/* Form Card */}
         <div className="bg-white rounded-3xl border border-cream-300 p-6 sm:p-8 shadow-premium space-y-4">
           {error && (
-            <div className="p-3.5 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-xs font-medium">
+            <div className="p-3.5 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-xs font-medium leading-relaxed">
               {error}
             </div>
           )}
+
+          {/* Fill Shortcut Chips */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-400">
+              Or auto-fill test credentials:
+            </span>
+            <div className="flex flex-wrap gap-1.5 text-[11px]">
+              <button
+                type="button"
+                onClick={() => fillCredentials('adopter')}
+                className="px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-brand-50 text-charcoal-700 font-semibold border border-cream-300 transition-colors"
+              >
+                Rahul (Adopter)
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('shelter')}
+                className="px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-teal-50 text-charcoal-700 font-semibold border border-cream-300 transition-colors"
+              >
+                Delhi Paws (Shelter)
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin')}
+                className="px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-rose-50 text-charcoal-700 font-semibold border border-cream-300 transition-colors"
+              >
+                Administrator
+              </button>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -151,7 +204,7 @@ const Login = () => {
               size="lg"
               variant="primary"
               loading={loading}
-              className="w-full shadow-sm"
+              className="w-full shadow-sm font-bold"
             >
               Sign In to PetVerse
             </Button>
