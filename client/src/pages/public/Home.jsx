@@ -27,7 +27,13 @@ import {
   ClipboardList,
   UserCheck,
   Check,
-  Plus
+  Plus,
+  BookOpen,
+  AlertTriangle,
+  XCircle,
+  X,
+  FileText,
+  Utensils
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../components/common/Button';
@@ -37,6 +43,178 @@ import { useMode } from '../../context/ModeContext';
 import { useAuth } from '../../context/AuthContext';
 import ReminderFormModal from '../../components/care/ReminderFormModal';
 import FacilityRegisterModal from '../../components/services/FacilityRegisterModal';
+
+// Veterinary-reviewed educational articles
+const PET_CARE_ARTICLES = [
+  {
+    id: 'vaccinations-guide',
+    category: 'Preventative Health',
+    categoryColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    title: 'The Golden Schedule: Essential Vaccinations & Deworming for Indian Pets',
+    readTime: '4 min read',
+    author: 'Reviewed by Dr. Ananya Sharma, BVSc & AH',
+    image: 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&q=80&w=600',
+    summary: 'Vaccination is your pet\'s primary defense against fatal viral illnesses like Parvovirus, Canine Distemper, and Rabies.',
+    takeaways: [
+      'Rabies booster is legally mandated & required annually for all dogs and cats.',
+      'Core DHPP (Dogs) and Tricat/FVRCP (Cats) initial shots start at 6-8 weeks with annual boosters.',
+      'Quarterly deworming protects both companion pets and human family members.'
+    ],
+    fullContent: [
+      {
+        heading: '1. Why Preventative Immunization Matters',
+        text: 'In tropical and subtropical regions like India, communicable pathogens such as Parvovirus, Canine Distemper, Leptospirosis, and Feline Panleukopenia survive in the ambient environment for extended periods. Early puppy/kitten vaccination followed by rigorous adult booster maintenance prevents devastating, expensive, and often fatal health crises.'
+      },
+      {
+        heading: '2. The Core Vaccination Timeline',
+        text: 'Puppies should receive their first 6-in-1 / 7-in-1 DHPP vaccine at 6–8 weeks of age, followed by booster shots every 3–4 weeks until 16 weeks of age. Rabies vaccination is administered at 12–16 weeks. For adult dogs, an annual single-shot booster provides continuous protective immunity.'
+      },
+      {
+        heading: '3. Deworming Protocols for Warm Climates',
+        text: 'Intestinal parasites (roundworms, tapeworms, and hookworms) leech vital nutrients and cause severe chronic anemia. Puppies and kittens need deworming every 2 weeks until 3 months of age, monthly until 6 months, and every 3 months for lifelong maintenance.'
+      },
+      {
+        heading: '4. Tick & Flea Prevention in Monsoon & Summer',
+        text: 'Tick fever (Ehrlichiosis & Babesiosis) is among the most widespread conditions diagnosed in Indian veterinary hospitals. Use regular oral chews, spot-on topical solutions, or anti-tick collars approved by your veterinarian, especially preceding the humid monsoon months.'
+      }
+    ]
+  },
+  {
+    id: 'adoption-333-rule',
+    category: 'Adoption & Transition',
+    categoryColor: 'bg-amber-100 text-amber-800 border-amber-200',
+    title: 'The 3-3-3 Rule: Navigating Your Rescue Pet’s First 3 Months',
+    readTime: '5 min read',
+    author: 'PetVerse Shelter Behavioral Team',
+    image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=600',
+    summary: 'Rescue dogs and cats go through distinct decompression phases. Understanding the 3 days, 3 weeks, and 3 months milestones helps you build enduring trust.',
+    takeaways: [
+      'First 3 Days: Expect decompression, shyness, appetite dips, and testing boundaries.',
+      'First 3 Weeks: Your pet settles into the household rhythm and begins to feel safe.',
+      'First 3 Months: True personality shines through, confidence settles, and deep loyalty develops.'
+    ],
+    fullContent: [
+      {
+        heading: '1. The First 3 Days (Decompression & Overwhelm)',
+        text: 'Transitioning from a noisy shelter kennel or foster home into a new house is sensory overload. Your new pet may refuse food, sleep excessively, hide under furniture, or pace anxiously. Designate a quiet corner with comfortable bedding, clean water, and zero loud visitors during these critical initial 72 hours.'
+      },
+      {
+        heading: '2. The First 3 Weeks (Routine & Confidence Building)',
+        text: 'By week 3, pets begin to recognize your daily schedule—when meals arrive, when walk times occur, and when family rest periods happen. Predictability is the greatest antidote to rescue anxiety. Begin gentle, positive-reinforcement potty training and crate/mat conditioning.'
+      },
+      {
+        heading: '3. The First 3 Months (Complete Trust & Belonging)',
+        text: 'At around 90 days, your pet realizes they are permanently home and safe. Defensive behaviors soften, their true quirks emerge, and an unbreakable lifelong bond is formed. Patience during the early transition yields a devoted family member.'
+      }
+    ]
+  },
+  {
+    id: 'nutrition-safety',
+    category: 'Nutrition & Wellness',
+    categoryColor: 'bg-teal-100 text-teal-800 border-teal-200',
+    title: 'Canine & Feline Nutrition: Wholesome Feeding & Toxic Food Hazards',
+    readTime: '4 min read',
+    author: 'Reviewed by Certified Animal Nutritionists',
+    image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&q=80&w=600',
+    summary: 'A balanced diet fuels longevity. Learn which human foods nourish your pet and which everyday pantry ingredients are critically toxic.',
+    takeaways: [
+      'Never feed chocolate, onions, garlic, grapes, raisins, xylitol sweetener, or cooked bones.',
+      'Safe wholesome additions: Plain boiled chicken, pumpkin puree, carrots, and boiled eggs.',
+      'Clean, cool drinking water must be replenished twice daily in washed stainless steel bowls.'
+    ],
+    fullContent: [
+      {
+        heading: '1. Critical Kitchen Toxins Never to Feed',
+        text: 'Common kitchen staples can be fatal to pets. Onions and garlic damage red blood cells causing hemolytic anemia. Grapes and raisins trigger acute kidney failure. Xylitol (found in sugar-free peanut butter and sweets) causes rapid hypoglycemia and liver collapse. Never feed cooked poultry bones as they splinter and puncture the gastrointestinal tract.'
+      },
+      {
+        heading: '2. Species-Appropriate Protein & Hydration',
+        text: 'Dogs are facultative carnivores while cats are obligate carnivores requiring high animal protein and essential taurine. Cats naturally have a low thirst drive, so adding wet food or bone broth helps prevent chronic renal diseases and urinary crystals.'
+      },
+      {
+        heading: '3. Portion Control & Weight Management',
+        text: 'Pet obesity shortens lifespan by up to 2.5 years and puts severe strain on joints (especially in Labradors, Golden Retrievers, and Beagles). Measure meals with a cup instead of free-feeding, and limit treats to under 10% of daily caloric intake.'
+      }
+    ]
+  },
+  {
+    id: 'boarding-etiquette',
+    category: 'Boarding & Homestays',
+    categoryColor: 'bg-purple-100 text-purple-800 border-purple-200',
+    title: 'The Cage-Free Homestay Checklist: Preparing for Stress-Free Boarding',
+    readTime: '3 min read',
+    author: 'PetVerse Host Verification Council',
+    image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=80&w=600',
+    summary: 'Cage-free boarding gives your pet a loving family environment while you travel. Here is how to prepare for an effortless, anxiety-free stay.',
+    takeaways: [
+      'Pack familiar comforts: Their unwashed blanket or t-shirt smelling of you eases separation anxiety.',
+      'Provide pre-portioned meals and written medication instructions.',
+      'Share emergency veterinary contacts and local guardian authorization.'
+    ],
+    fullContent: [
+      {
+        heading: '1. Up-to-Date Vaccination Records',
+        text: 'Reputable cage-free hosts require proof of up-to-date Rabies, DHPP/Tricat, and Kennel Cough (Bordetella) immunizations to protect all guest animals.'
+      },
+      {
+        heading: '2. Pre-Boarding Meet and Greet',
+        text: 'A 20-minute introductory visit allows your pet to explore the host’s home, sniff the grounds, and meet resident pets on neutral territory before the actual stay.'
+      },
+      {
+        heading: '3. Diet Continuity & Scent Comforts',
+        text: 'Sudden dietary shifts cause gastrointestinal distress. Provide your pet’s exact regular food with pre-measured bags. Packing their favorite chew toy or an unwashed blanket carrying your scent acts as a natural calming agent.'
+      }
+    ]
+  }
+];
+
+// Essential Daily Standards: Do's & Don'ts Comparison Matrix
+const PET_CARE_DOS_AND_DONTS = {
+  dos: [
+    {
+      title: 'Maintain Strict Vaccination & Booster Timelines',
+      desc: 'Annual rabies and core DHPP/FVRCP vaccinations protect against fatal viral infections prevalent in Indian communities.'
+    },
+    {
+      title: 'Practice Compassionate Positive Reinforcement',
+      desc: 'Reward desirable behaviors with healthy treats, verbal praise, and affection. Consistency and patience foster lasting trust.'
+    },
+    {
+      title: 'Provide Constant Access to Fresh, Filtered Water',
+      desc: 'Hydration is crucial for kidney function and body temperature regulation, especially during hot summer months.'
+    },
+    {
+      title: 'Secure Collar ID Tags & Microchip Details',
+      desc: 'Ensure your pet always wears a lightweight collar with an engraved tag containing your direct mobile phone number.'
+    },
+    {
+      title: 'Schedule Daily Physical Exercise & Mental Enrichment',
+      desc: 'Daily walks, sniffing sessions, and interactive puzzle toys burn pent-up energy and prevent separation anxiety.'
+    }
+  ],
+  donts: [
+    {
+      title: 'Never Feed Toxic Kitchen Ingredients',
+      desc: 'Never give chocolate, onions, garlic, grapes, raisins, caffeine, alcohol, or foods sweetened with artificial xylitol.'
+    },
+    {
+      title: 'Never Leave Pets Unattended in Parked Vehicles',
+      desc: 'Interior vehicle temperatures can exceed 48°C in under 10 minutes in Indian weather, leading to rapid, fatal heatstroke.'
+    },
+    {
+      title: 'Never Skip Quarterly Deworming & Tick Prevention',
+      desc: 'Neglecting parasite prevention leaves your pet susceptible to debilitating tick fever and internal intestinal infestations.'
+    },
+    {
+      title: 'Never Use Physical Punishment or Intimidation',
+      desc: 'Yelling or striking creates deep-seated fear, breaks emotional security, and often triggers defensive fear-aggression.'
+    },
+    {
+      title: 'Never Feed Cooked Animal Bones',
+      desc: 'Cooked bones become brittle and splinter easily, causing severe throat chokes, stomach tears, and internal bleeding.'
+    }
+  ]
+};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -62,6 +240,10 @@ const Home = () => {
 
   // Facility Registration Modal State
   const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false);
+
+  // Pet Parenting Knowledge Hub States
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [knowledgeTab, setKnowledgeTab] = useState('all'); // 'all', 'articles', 'dos-donts'
 
   const [featuredPets, setFeaturedPets] = useState([]);
   const [searchCity, setSearchCity] = useState('');
@@ -230,8 +412,8 @@ const Home = () => {
               today?
             </h1>
 
-            <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed font-medium">
-              Please select your primary path below. We'll automatically customize the features, tools, and recommendations to match your exact needs with zero clutter.
+            <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed font-medium max-w-2xl mx-auto">
+              India's unified pet ecosystem connecting ethical rescue adoptions, certified cage-free homestay boarding, and preventative veterinary healthcare.
             </p>
           </div>
 
@@ -1419,55 +1601,376 @@ const Home = () => {
       )}
 
       {/* =========================================================================
-          5. COMMON FREQUENTLY ASKED QUESTIONS
+          5. PET PARENTING KNOWLEDGE HUB & ESSENTIAL CARE STANDARDS
+          - Replaces generic FAQ with rich, veterinary-reviewed educational guides
+          - 4 Curated Pet Care Articles with Interactive Reading Modals
+          - Comprehensive Do's & Don'ts Comparison Matrix
+          - Actionable preventative health shortcuts
           ========================================================================= */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-16">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">
-            Quick Answers
-          </span>
-          <h3 className="font-display font-bold text-2xl sm:text-3xl text-charcoal-900">
-            Frequently Asked Questions
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-16 border-t border-cream-300/80">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold shadow-xs">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-700" />
+            <span>Pet Parenting Knowledge Hub • Veterinary Care Guidelines</span>
+          </div>
+
+          <h3 className="font-display font-extrabold text-2xl sm:text-4xl text-charcoal-900 tracking-tight">
+            Essential Pet Care Guides & Healthy Living Standards
           </h3>
+
+          <p className="text-xs sm:text-sm text-charcoal-600 leading-relaxed font-medium max-w-2xl mx-auto">
+            Practical, scientifically-backed advice for every pet parent. Explore our core health guides, adoption transition milestones, and daily safety practices.
+          </p>
+
+          {/* Quick Filter Switcher */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            {[
+              { id: 'all', label: 'All Resources' },
+              { id: 'articles', label: 'Featured Guides & Articles' },
+              { id: 'dos-donts', label: "Essential Do's & Don'ts" }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setKnowledgeTab(tab.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  knowledgeTab === tab.id
+                    ? 'bg-charcoal-900 text-white shadow-xs'
+                    : 'bg-white border border-cream-300 text-charcoal-700 hover:bg-cream-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {[
-            {
-              q: 'How does adoption work on PetVerse?',
-              a: 'Select Option 1 ("I Want to Adopt"), browse shelter pets or take the AI match quiz, and click "Apply to Adopt" to submit your digital questionnaire directly to shelter caretakers.'
-            },
-            {
-              q: 'How does Pet Boarding work if I already have a pet?',
-              a: 'Select Option 2 ("I Already Have a Pet"), browse verified caregivers offering cage-free homestays, and submit a booking reservation with your check-in dates.'
-            },
-            {
-              q: 'Can I track health and vaccination reminders for free?',
-              a: 'Yes! PetVerse includes an automated health schedule for Rabies boosters, deworming, and vet checkups with zero subscription fees.'
-            },
-            {
-              q: 'How can I switch between different options on the website?',
-              a: 'At any time, click "Switch Option / Back to Opening Screen" at the top banner or use the mode switcher pill in the navigation bar to toggle between options.'
-            }
-          ].map((faq, idx) => (
-            <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-white border border-cream-300 shadow-xs space-y-1.5">
-              <h4 className="font-display font-bold text-sm text-charcoal-900 flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-brand-accent shrink-0" />
-                <span>{faq.q}</span>
+        {/* =====================================================================
+            PART A: 4 FEATURED PET CARE ARTICLES (GRID)
+            ===================================================================== */}
+        {(knowledgeTab === 'all' || knowledgeTab === 'articles') && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-lg text-charcoal-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-brand-600" />
+                  <span>Featured Veterinary & Adoption Guides</span>
+                </h4>
+                <p className="text-xs text-charcoal-500 font-medium">
+                  Click any guide to read the full chapter, schedules, and clinical recommendations.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {PET_CARE_ARTICLES.map((article) => (
+                <div
+                  key={article.id}
+                  onClick={() => setSelectedArticle(article)}
+                  className="rounded-3xl bg-white border border-cream-300 shadow-premium hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer group transform hover:-translate-y-1"
+                >
+                  <div className="space-y-3">
+                    {/* Cover Image */}
+                    <div className="relative h-44 w-full overflow-hidden bg-cream-200">
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border shadow-xs ${article.categoryColor}`}>
+                          {article.category}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-3 right-3 bg-charcoal-950/75 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{article.readTime}</span>
+                      </div>
+                    </div>
+
+                    {/* Article Body */}
+                    <div className="p-4 space-y-2.5">
+                      <p className="text-[11px] font-bold text-brand-700">
+                        {article.author}
+                      </p>
+                      <h5 className="font-display font-bold text-sm sm:text-base text-charcoal-900 group-hover:text-brand-600 transition-colors line-clamp-2 leading-snug">
+                        {article.title}
+                      </h5>
+                      <p className="text-xs text-charcoal-600 line-clamp-2 leading-relaxed font-normal">
+                        {article.summary}
+                      </p>
+
+                      {/* Key Takeaways Snippet */}
+                      <div className="pt-2 border-t border-cream-200 space-y-1.5">
+                        <span className="text-[10px] font-extrabold text-charcoal-400 uppercase tracking-wider">
+                          Key Clinical Takeaways:
+                        </span>
+                        <ul className="space-y-1 text-[11px] text-charcoal-700">
+                          {article.takeaways.slice(0, 2).map((pt, i) => (
+                            <li key={i} className="flex items-start gap-1.5 leading-tight">
+                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                              <span>{pt}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Footer Button */}
+                  <div className="p-4 pt-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedArticle(article);
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-cream-100 hover:bg-cream-200 group-hover:bg-brand-500 group-hover:text-white text-charcoal-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <span>Read Full Guide</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* =====================================================================
+            PART B: ESSENTIAL DO'S & DON'TS MATRIX
+            ===================================================================== */}
+        {(knowledgeTab === 'all' || knowledgeTab === 'dos-donts') && (
+          <div className="space-y-6 pt-4">
+            <div className="text-center max-w-2xl mx-auto space-y-1.5">
+              <h4 className="font-display font-extrabold text-xl sm:text-2xl text-charcoal-900">
+                Crucial Daily Care Standards: Do's and Don'ts
               </h4>
-              <p className="text-xs text-charcoal-600 leading-relaxed pl-6">
-                {faq.a}
+              <p className="text-xs text-charcoal-600 leading-relaxed font-medium">
+                Simple habits that prevent emergencies, ensure longevity, and maintain happy canine and feline household members.
               </p>
             </div>
-          ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* THE ESSENTIAL DO'S (EMERALD) */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-white border-2 border-emerald-300 shadow-premium space-y-4">
+                <div className="flex items-center gap-3 pb-3 border-b border-emerald-100">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h5 className="font-display font-extrabold text-lg text-emerald-950">
+                      The Essential DO'S
+                    </h5>
+                    <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+                      Proven Best Practices for Health & Well-being
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3.5">
+                  {PET_CARE_DOS_AND_DONTS.dos.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                      <div className="w-6 h-6 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h6 className="font-display font-bold text-xs sm:text-sm text-charcoal-900">
+                          {item.title}
+                        </h6>
+                        <p className="text-xs text-charcoal-600 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* THE CRITICAL DON'TS (ROSE / RED) */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-white border-2 border-rose-300 shadow-premium space-y-4">
+                <div className="flex items-center gap-3 pb-3 border-b border-rose-100">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h5 className="font-display font-extrabold text-lg text-rose-950">
+                      The Critical DON'TS
+                    </h5>
+                    <p className="text-[11px] font-bold text-rose-700 uppercase tracking-wider">
+                      Dangerous Hazards & Harmful Household Mistakes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3.5">
+                  {PET_CARE_DOS_AND_DONTS.donts.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 rounded-2xl bg-rose-50/50 border border-rose-100">
+                      <div className="w-6 h-6 rounded-full bg-rose-200 text-rose-800 flex items-center justify-center shrink-0 mt-0.5">
+                        <X className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h6 className="font-display font-bold text-xs sm:text-sm text-charcoal-900">
+                          {item.title}
+                        </h6>
+                        <p className="text-xs text-charcoal-600 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* Quick Action Bar / Footer of Knowledge Hub */}
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-cream-100 to-amber-50 border border-cream-300 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-1 text-center sm:text-left">
+            <h5 className="font-display font-bold text-sm sm:text-base text-charcoal-900 flex items-center gap-2 justify-center sm:justify-start">
+              <Calendar className="w-4 h-4 text-brand-600" />
+              <span>Stay Ahead of Your Pet's Vaccinations & Health Cycles</span>
+            </h5>
+            <p className="text-xs text-charcoal-600">
+              Set automated notifications for Rabies boosters, tick prevention, and annual checkups in your personal calendar.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleOpenReminderModal({ title: 'Annual Booster Checkup', type: 'vaccination' })}
+              className="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Set Care Reminder</span>
+            </button>
+            <Link
+              to="/faq"
+              className="px-4 py-2 rounded-xl bg-white border border-cream-300 hover:bg-cream-100 text-charcoal-800 font-bold text-xs shadow-xs transition-all"
+            >
+              <span>Platform FAQs →</span>
+            </Link>
+          </div>
         </div>
 
-        <div className="text-center pt-1">
-          <Link to="/faq" className="text-xs font-bold text-brand-600 hover:underline">
-            View All FAQs & Support Guidelines →
-          </Link>
-        </div>
       </section>
+
+      {/* Interactive Pet Care Article Reader Modal */}
+      {selectedArticle && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-charcoal-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-cream-300 max-h-[90vh] flex flex-col"
+          >
+            {/* Modal Header Banner */}
+            <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-charcoal-900 shrink-0">
+              <img
+                src={selectedArticle.image}
+                alt={selectedArticle.title}
+                className="w-full h-full object-cover opacity-85"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/90 via-charcoal-950/40 to-transparent" />
+              
+              <button
+                type="button"
+                onClick={() => setSelectedArticle(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-charcoal-900/80 hover:bg-charcoal-950 text-white flex items-center justify-center cursor-pointer shadow-lg transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="absolute bottom-4 left-5 right-5 space-y-1.5 text-white">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${selectedArticle.categoryColor}`}>
+                    {selectedArticle.category}
+                  </span>
+                  <span className="text-white/80 text-[11px] flex items-center gap-1 font-semibold">
+                    <Clock className="w-3 h-3" />
+                    <span>{selectedArticle.readTime}</span>
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-lg sm:text-xl text-white leading-tight">
+                  {selectedArticle.title}
+                </h3>
+              </div>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 space-y-6 overflow-y-auto">
+              
+              {/* Author / Credential Badge */}
+              <div className="p-3 rounded-2xl bg-cream-100 border border-cream-200 flex items-center justify-between text-xs">
+                <span className="font-bold text-charcoal-700">
+                  {selectedArticle.author}
+                </span>
+                <span className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Clinical Standard</span>
+                </span>
+              </div>
+
+              {/* Key Takeaways Box */}
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
+                <span className="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider">
+                  Summary & Key Takeaways:
+                </span>
+                <ul className="space-y-1.5 text-xs text-charcoal-700 font-medium">
+                  {selectedArticle.takeaways.map((pt, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Structured Sections */}
+              <div className="space-y-4 text-charcoal-700 text-xs sm:text-sm leading-relaxed">
+                {selectedArticle.fullContent.map((sec, idx) => (
+                  <div key={idx} className="space-y-1.5">
+                    <h4 className="font-display font-bold text-charcoal-900 text-sm sm:text-base">
+                      {sec.heading}
+                    </h4>
+                    <p className="text-charcoal-600 leading-relaxed font-normal">
+                      {sec.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer Controls */}
+            <div className="p-4 border-t border-cream-200 bg-cream-50 flex items-center justify-between shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const articleTitle = selectedArticle.title;
+                  setSelectedArticle(null);
+                  handleOpenReminderModal({ title: articleTitle, type: 'health_check' });
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Reminder for This</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedArticle(null)}
+                className="px-4 py-2 rounded-xl bg-charcoal-200 hover:bg-charcoal-300 text-charcoal-900 text-xs font-bold transition-all cursor-pointer"
+              >
+                Close Guide
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Reminder Modal */}
       {isReminderModalOpen && (
