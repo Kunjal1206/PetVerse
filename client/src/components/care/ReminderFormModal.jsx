@@ -11,18 +11,32 @@ const ReminderFormModal = ({
   isOpen,
   onClose,
   pets = [],
+  initialData = null,
   onSuccess
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
-    title: '',
-    type: 'vaccination',
-    due_date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
-    user_pet_id: pets.length > 0 ? pets[0].id : '',
-    notes: ''
+    title: initialData?.title || '',
+    type: initialData?.type || 'vaccination',
+    due_date: initialData?.due_date || new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+    user_pet_id: pets.length > 0 ? pets[0].id : 'mock-bruno',
+    notes: initialData?.notes || ''
   });
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setForm({
+        title: initialData?.title || '',
+        type: initialData?.type || 'vaccination',
+        due_date: initialData?.due_date || new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+        user_pet_id: pets.length > 0 ? pets[0].id : 'mock-bruno',
+        notes: initialData?.notes || ''
+      });
+      setError(null);
+    }
+  }, [isOpen, initialData, pets]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,17 +113,22 @@ const ReminderFormModal = ({
           />
         </div>
 
-        {pets.length > 0 && (
-          <Select
-            label="Assign to Pet"
-            value={form.user_pet_id}
-            onChange={(e) => setForm({ ...form, user_pet_id: e.target.value })}
-            options={[
-              { value: '', label: 'General Household' },
-              ...pets.map(p => ({ value: p.id, label: `${p.name} (${p.species})` }))
-            ]}
-          />
-        )}
+        <Select
+          label="Assign to Pet"
+          value={form.user_pet_id}
+          onChange={(e) => setForm({ ...form, user_pet_id: e.target.value })}
+          options={
+            pets.length > 0
+              ? [
+                  { value: '', label: 'General Household' },
+                  ...pets.map((p) => ({ value: p.id, label: `${p.name} (${p.breed || p.species})` }))
+                ]
+              : [
+                  { value: 'mock-bruno', label: 'Bruno (Golden Indie Mix)' },
+                  { value: 'mock-luna', label: 'Luna (Persian Cross)' }
+                ]
+          }
+        />
 
         <Textarea
           label="Notes / Dosage / Instructions"

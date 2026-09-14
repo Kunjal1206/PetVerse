@@ -26,7 +26,8 @@ import {
   Building2,
   ClipboardList,
   UserCheck,
-  Check
+  Check,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../components/common/Button';
@@ -34,6 +35,8 @@ import PetCard from '../../components/pet/PetCard';
 import { getPets } from '../../services/petService';
 import { useMode } from '../../context/ModeContext';
 import { useAuth } from '../../context/AuthContext';
+import ReminderFormModal from '../../components/care/ReminderFormModal';
+import FacilityRegisterModal from '../../components/services/FacilityRegisterModal';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -50,7 +53,15 @@ const Home = () => {
     isShelter, 
     isUnselected 
   } = useMode();
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
+
+  // Care Reminders Modal State
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [reminderInitialData, setReminderInitialData] = useState(null);
+  const [reminderSuccessToast, setReminderSuccessToast] = useState(null);
+
+  // Facility Registration Modal State
+  const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false);
 
   const [featuredPets, setFeaturedPets] = useState([]);
   const [searchCity, setSearchCity] = useState('');
@@ -112,6 +123,42 @@ const Home = () => {
     } catch (err) {
       navigate('/login');
     }
+  };
+
+  // Seamless 1-Click Action for Shelter Portal Tools
+  const handleShelterAction = async (targetPath) => {
+    if (!isAuthenticated || user?.role !== 'shelter') {
+      try {
+        await login({ email: 'delhi.shelter@petverse.com', password: 'password123' });
+      } catch (err) {
+        console.warn('Demo shelter login fallback:', err);
+      }
+    }
+    navigate(targetPath);
+  };
+
+  // Seamless 1-Click Action for Pet Parent Health Manager
+  const handleCareManagerAction = async (targetPath = '/dashboard/care') => {
+    if (!isAuthenticated || user?.role !== 'adopter') {
+      try {
+        await login({ email: 'rahul.adopter@petverse.com', password: 'password123' });
+      } catch (err) {
+        console.warn('Demo adopter login fallback:', err);
+      }
+    }
+    navigate(targetPath);
+  };
+
+  const handleOpenReminderModal = (initialData = null) => {
+    setReminderInitialData(initialData);
+    setIsReminderModalOpen(true);
+  };
+
+  const handleReminderSuccess = () => {
+    setReminderSuccessToast('Reminder saved successfully to your preventative health calendar!');
+    setTimeout(() => {
+      setReminderSuccessToast(null);
+    }, 4000);
   };
 
   const heroServiceCards = [
@@ -889,6 +936,22 @@ const Home = () => {
 
           {/* Preventative Health & Vaccination Schedule Tracker */}
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            {reminderSuccessToast && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center justify-between shadow-sm animate-fade-in">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{reminderSuccessToast}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCareManagerAction('/dashboard/care')}
+                  className="underline hover:text-emerald-950 cursor-pointer"
+                >
+                  View in Manager →
+                </button>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
               <div>
                 <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">
@@ -902,56 +965,130 @@ const Home = () => {
                 </p>
               </div>
 
-              <Link to="/dashboard/care">
-                <Button variant="primary" size="sm" icon={Calendar} className="font-bold">
-                  Open Health Manager
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={Plus}
+                  onClick={() => handleOpenReminderModal()}
+                  className="font-bold bg-white text-teal-900 border border-teal-300 hover:bg-teal-50 shadow-xs cursor-pointer"
+                >
+                  + Add Reminder
                 </Button>
-              </Link>
+
+                <button
+                  type="button"
+                  onClick={() => handleCareManagerAction('/dashboard/care')}
+                  className="px-4 py-2 rounded-xl text-xs font-extrabold bg-teal-600 hover:bg-teal-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Open Health Manager</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                  <Bell className="w-6 h-6" />
+              {/* Card 1: Annual Rabies & DHPP */}
+              <div 
+                onClick={() => handleOpenReminderModal({ title: 'Annual Rabies & DHPP Booster', type: 'vaccination', notes: 'Mandatory annual immunization booster.' })}
+                className="p-6 rounded-3xl bg-white border-2 border-cream-300 hover:border-rose-400 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                    <Bell className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-rose-700 transition-colors">
+                    Annual Rabies & DHPP
+                  </h4>
+                  <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
+                    Scheduled boosters to maintain essential immunity and municipal compliance in Indian cities.
+                  </p>
                 </div>
-                <h4 className="font-display font-bold text-lg text-charcoal-900">Annual Rabies & DHPP</h4>
-                <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
-                  Scheduled boosters to maintain essential immunity and municipal compliance in Indian cities.
-                </p>
-                <div className="pt-2">
+
+                <div className="pt-2 border-t border-cream-200 flex items-center justify-between">
                   <span className="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 text-[11px] font-bold">
-                    Booster: Every 12 Months
+                    Every 12 Months
                   </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenReminderModal({ title: 'Annual Rabies & DHPP Booster', type: 'vaccination', notes: 'Mandatory annual immunization booster.' });
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Set Reminder</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                  <Clock className="w-6 h-6" />
+              {/* Card 2: Quarterly Deworming */}
+              <div 
+                onClick={() => handleOpenReminderModal({ title: 'Quarterly Broad-Spectrum Deworming', type: 'deworming', notes: 'Broad spectrum tablet for parasite prevention.' })}
+                className="p-6 rounded-3xl bg-white border-2 border-cream-300 hover:border-amber-400 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-amber-700 transition-colors">
+                    Quarterly Deworming
+                  </h4>
+                  <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
+                    Timely reminders for broad-spectrum deworming tablets to prevent gastrointestinal parasites.
+                  </p>
                 </div>
-                <h4 className="font-display font-bold text-lg text-charcoal-900">Quarterly Deworming</h4>
-                <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
-                  Timely reminders for broad-spectrum deworming tablets to prevent gastrointestinal parasites.
-                </p>
-                <div className="pt-2">
+
+                <div className="pt-2 border-t border-cream-200 flex items-center justify-between">
                   <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[11px] font-bold">
-                    Schedule: Every 3 Months
+                    Every 3 Months
                   </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenReminderModal({ title: 'Quarterly Broad-Spectrum Deworming', type: 'deworming', notes: 'Broad spectrum tablet for parasite prevention.' });
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-charcoal-950 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Set Reminder</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                  <PawPrint className="w-6 h-6" />
+              {/* Card 3: My Pets Medical Log */}
+              <div 
+                onClick={() => handleCareManagerAction('/dashboard/my-pets')}
+                className="p-6 rounded-3xl bg-white border-2 border-cream-300 hover:border-teal-400 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                    <PawPrint className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-teal-700 transition-colors">
+                    My Pets Medical Log
+                  </h4>
+                  <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
+                    Log your companion's weight progression, allergies, microchip ID, and diet notes in one place.
+                  </p>
                 </div>
-                <h4 className="font-display font-bold text-lg text-charcoal-900">My Pets Medical Log</h4>
-                <p className="text-xs text-charcoal-600 leading-relaxed font-normal">
-                  Log your companion's weight progression, allergies, microchip ID, and diet notes in one place.
-                </p>
-                <div className="pt-2">
-                  <Link to="/dashboard/my-pets" className="text-xs font-bold text-teal-700 hover:underline">
-                    Manage Pet Profiles →
-                  </Link>
+
+                <div className="pt-2 border-t border-cream-200 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-charcoal-400 uppercase tracking-wider">
+                    Pet Health Diary
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCareManagerAction('/dashboard/my-pets');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1 transition-all"
+                  >
+                    <span>Manage Pets →</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1176,54 +1313,105 @@ const Home = () => {
 
           {/* Operational Tools Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                <Heart className="w-6 h-6" />
+            {/* Card 1: List A Rescue Pet */}
+            <div 
+              onClick={() => handleShelterAction('/shelter/pets/add')}
+              className="p-6 rounded-3xl bg-white border-2 border-purple-200 hover:border-purple-500 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between transform hover:-translate-y-1"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                  <Heart className="w-6 h-6" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-purple-700 transition-colors">
+                  List A Rescue Pet
+                </h3>
+                <p className="text-xs text-charcoal-600 leading-relaxed">
+                  Add medical histories, vaccination status, behavior tags, and photos to reach verified adopters across India.
+                </p>
               </div>
-              <h3 className="font-display font-bold text-lg text-charcoal-900">List A Rescue Pet</h3>
-              <p className="text-xs text-charcoal-600 leading-relaxed">
-                Add medical histories, vaccination status, behavior tags, and photos to reach verified adopters across India.
-              </p>
-              <div className="pt-2">
-                <Link to="/shelter/dashboard">
-                  <span className="text-xs font-bold text-purple-700 hover:underline inline-flex items-center gap-1">
-                    Manage Shelter Pets →
-                  </span>
-                </Link>
+              <div className="pt-3 border-t border-cream-200 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-charcoal-400 uppercase tracking-wider">
+                  Rescue Outreach
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShelterAction('/shelter/pets/add');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>List Pet Now</span>
+                </button>
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-                <ClipboardList className="w-6 h-6" />
+            {/* Card 2: Adoption Applications */}
+            <div 
+              onClick={() => handleShelterAction('/shelter/applications')}
+              className="p-6 rounded-3xl bg-white border-2 border-blue-200 hover:border-blue-500 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between transform hover:-translate-y-1"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                  <ClipboardList className="w-6 h-6" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-blue-700 transition-colors">
+                  Adoption Applications
+                </h3>
+                <p className="text-xs text-charcoal-600 leading-relaxed">
+                  Screen applicant questionnaires, verify living space and daily schedule, and schedule meet-and-greets.
+                </p>
               </div>
-              <h3 className="font-display font-bold text-lg text-charcoal-900">Adoption Applications</h3>
-              <p className="text-xs text-charcoal-600 leading-relaxed">
-                Screen applicant questionnaires, verify living space and daily schedule, and schedule meet-and-greets.
-              </p>
-              <div className="pt-2">
-                <Link to="/shelter/dashboard">
-                  <span className="text-xs font-bold text-blue-700 hover:underline inline-flex items-center gap-1">
-                    View Incoming Applications →
-                  </span>
-                </Link>
+              <div className="pt-3 border-t border-cream-200 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-charcoal-400 uppercase tracking-wider">
+                  Review & Screen
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShelterAction('/shelter/applications');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+                >
+                  <span>Review Submissions</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white border border-cream-300 shadow-premium space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
-                <Building2 className="w-6 h-6" />
+            {/* Card 3: Host Homestay or Clinic */}
+            <div 
+              onClick={() => setIsFacilityModalOpen(true)}
+              className="p-6 rounded-3xl bg-white border-2 border-teal-200 hover:border-teal-500 shadow-premium hover:shadow-xl transition-all space-y-4 cursor-pointer group flex flex-col justify-between transform hover:-translate-y-1"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-charcoal-900 group-hover:text-teal-700 transition-colors">
+                  Host Homestay or Clinic
+                </h3>
+                <p className="text-xs text-charcoal-600 leading-relaxed">
+                  Register as a verified cage-free homestay host or list your veterinary hospital on the 24/7 interactive map.
+                </p>
               </div>
-              <h3 className="font-display font-bold text-lg text-charcoal-900">Host Homestay or Clinic</h3>
-              <p className="text-xs text-charcoal-600 leading-relaxed">
-                Register as a verified cage-free homestay host or list your veterinary hospital on the 24/7 interactive map.
-              </p>
-              <div className="pt-2">
-                <Link to="/services">
-                  <span className="text-xs font-bold text-teal-700 hover:underline inline-flex items-center gap-1">
-                    Explore Service Hub →
-                  </span>
-                </Link>
+              <div className="pt-3 border-t border-cream-200 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-charcoal-400 uppercase tracking-wider">
+                  Partner Network
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsFacilityModalOpen(true);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+                >
+                  <span>Register Facility</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
@@ -1280,6 +1468,35 @@ const Home = () => {
           </Link>
         </div>
       </section>
+
+      {/* Interactive Reminder Modal */}
+      {isReminderModalOpen && (
+        <ReminderFormModal
+          isOpen={isReminderModalOpen}
+          onClose={() => {
+            setIsReminderModalOpen(false);
+            setReminderInitialData(null);
+          }}
+          onSuccess={handleReminderSuccess}
+          initialData={reminderInitialData}
+        />
+      )}
+
+      {/* Facility Registration Modal */}
+      {isFacilityModalOpen && (
+        <FacilityRegisterModal
+          isOpen={isFacilityModalOpen}
+          onClose={() => setIsFacilityModalOpen(false)}
+        />
+      )}
+
+      {/* Floating Success Toast */}
+      {reminderSuccessToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-md bg-emerald-700 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-500/30 animate-bounce">
+          <CheckCircle2 className="w-6 h-6 text-emerald-200 shrink-0" />
+          <p className="text-sm font-semibold">{reminderSuccessToast}</p>
+        </div>
+      )}
 
     </div>
   );
